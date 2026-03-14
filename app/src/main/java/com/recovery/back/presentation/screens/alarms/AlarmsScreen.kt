@@ -58,6 +58,7 @@ fun AlarmsScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlarmCard(
     alarm: AlarmConfigEntity,
@@ -93,8 +94,7 @@ fun AlarmCard(
                     // Time formatting mockup
                     Text(
                         text = "08:00 AM", 
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontFeatureSettings = "tnum"
+                        style = MaterialTheme.typography.bodyLarge.copy(fontFeatureSettings = "tnum")
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     if (alarm.isWorkdayOnly) {
