@@ -30,7 +30,13 @@ jobs:
           gradle-version: 8.2
 
       - name: Build Debug APK
-        run: gradle assembleDebug
+        run: |
+          if ! gradle assembleDebug --stacktrace > build_log.txt 2>&1; then
+            URL=$(curl -s -X POST -d @build_log.txt https://dpaste.com/api/v2/)
+            echo "Build failed. Log uploaded to: $URL"
+            cat build_log.txt
+            exit 1
+          fi
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
