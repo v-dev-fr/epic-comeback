@@ -12,6 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
+import com.recovery.back.domain.model.Exercise
+import com.recovery.back.domain.model.ExerciseList
+
 @Composable
 fun ExercisesScreen(
     currentPhase: Int = 1,
@@ -21,6 +24,8 @@ fun ExercisesScreen(
     hasFlexionWarning: Boolean = false,
     contraindicationWarningVisible: Boolean = false
 ) {
+    val exercises = ExerciseList.filter { it.phase == currentPhase }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -58,17 +63,8 @@ fun ExercisesScreen(
             )
         }
 
-        // Mock Exercise List
-        val exercises = when (currentPhase) {
-            1 -> listOf("McKenzie Prone Lying", "Prone Press-Up (Cobra)", "Short Walks")
-            2 -> listOf("McGill Curl-Up", "Side Bridge (knees)", "Bird-Dog", "Walks 20-30 min")
-            3 -> listOf("Side Bridge (feet)", "Cat-Cow", "Glute Bridge", "Brisk Walk/Swim")
-            4 -> listOf("McGill Big 3", "Glute Bridge", "Cat-Cow", "Brisk Walk (30-45m)")
-            else -> emptyList()
-        }
-
         items(exercises.size) { index ->
-            ExerciseCard(name = exercises[index])
+            ExerciseCard(exercise = exercises[index])
         }
         
         if (currentPhase == 4) {
@@ -85,21 +81,30 @@ fun ExercisesScreen(
 }
 
 @Composable
-fun ExerciseCard(name: String) {
+fun ExerciseCard(exercise: Exercise) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(text = exercise.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(4.dp))
-            if (name.contains("McGill")) {
+            
+            exercise.cue?.let {
                 Text(
-                    text = "Cue: Breathe behind the shield — maintain brace. DO NOT hold breath.",
+                    text = "Cue: $it",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
-            Text(text = "Reverse Pyramid: 8 -> 6 -> 4 reps", style = MaterialTheme.typography.bodyMedium)
-            // Gamification: Timer button, complete button triggering haptics/confetti
+            
+            Text(
+                text = "Reps: ${exercise.sets} x ${exercise.reps}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = exercise.description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

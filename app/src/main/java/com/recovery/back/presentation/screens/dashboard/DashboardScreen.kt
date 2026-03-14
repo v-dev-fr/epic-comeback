@@ -27,6 +27,8 @@ fun DashboardScreen(
     completionPercentage: Float = 0.6f, // 60%
     isRestDay: Boolean = false,
     onLogPainClick: () -> Unit,
+    onAddWaterClick: () -> Unit,
+    onLogWeightClick: () -> Unit,
     onRestDayToggle: (Boolean) -> Unit
 ) {
     Column(
@@ -110,8 +112,8 @@ fun DashboardScreen(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             QuickActionButton(title = "Log Pain", icon = Icons.Default.Add, onClick = onLogPainClick)
-            QuickActionButton(title = "Add Water", icon = Icons.Default.Add, onClick = { /* TODO */ })
-            QuickActionButton(title = "Log Weight", icon = Icons.Default.Add, onClick = { /* TODO */ })
+            QuickActionButton(title = "Add Water", icon = Icons.Default.Add, onClick = onAddWaterClick)
+            QuickActionButton(title = "Log Weight", icon = Icons.Default.Add, onClick = onLogWeightClick)
         }
 
         Spacer(modifier = Modifier.height(32.dp))

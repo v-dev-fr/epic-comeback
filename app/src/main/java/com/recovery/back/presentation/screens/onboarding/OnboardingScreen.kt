@@ -11,12 +11,32 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.recovery.back.data.local.entity.IbsSeverity
 import java.time.LocalDate
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
+import com.recovery.back.data.local.AppDatabase
+import com.recovery.back.data.local.entity.UserProfileEntity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingScreen(
     onComplete: () -> Unit
 ) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = {
+            onComplete()
+        }
+    )
+
     var name by remember { mutableStateOf("") }
     var height by remember { mutableStateOf("") }
     var startWeight by remember { mutableStateOf("") }
@@ -105,9 +125,32 @@ fun OnboardingScreen(
                     showError = "Goal weight must be less than current weight"
                 } else {
                     showError = null
-                    // Save to DB via ViewModel
-                    // Handle Permissions (Exact Alarm setup using Intent to Settings if needed)
-                    onComplete()
+                    
+                    coroutineScope.launch(Dispatchers.IO) {
+                        val db = AppDatabase.getDatabase(context)
+                        db.appDao().insertUserProfile(
+                            UserProfileEntity(
+                                name = name,
+                                heightCm = h,
+                                startWeightKg = sw,
+                                goalWeightKg = gw,
+                                injuryDateEpochDay = LocalDate.now().toEpochDay(),
+                                ibsSeverity = ibsSeverity
+                            )
+                        )
+                        
+                        launch(Dispatchers.Main) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                                    permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                } else {
+                                    onComplete()
+                                }
+                            } else {
+                                onComplete()
+                            }
+                        }
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()

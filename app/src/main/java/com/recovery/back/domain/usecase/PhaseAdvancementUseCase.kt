@@ -29,16 +29,20 @@ class PhaseAdvancementUseCase {
         if (avgPain >= 4.0) return false
         
         // Check exercise completion rate for current phase
-        val expectedMinRepsPerSession = 10 // Mock threshold, could be dynamic
-        val completedSessions = phaseSessions.count { it.phaseNumber == profile.currentPhase && it.repsCompleted >= expectedMinRepsPerSession }
-        val totalSessionsExpected = 10 // Assuming 10 expected sessions for checking
+        val totalSessionsInPhase = phaseSessions.filter { it.phaseNumber == profile.currentPhase }.size
         
-        val hitCompletionThreshold = if (phaseSessions.isNotEmpty()) {
-            (completedSessions.toFloat() / phaseSessions.size.coerceAtLeast(1)) > 0.8f
-        } else {
-            false
+        // Requirement: At least 10 sessions completed with pain not increasing
+        val stableSessions = phaseSessions.count { 
+            it.phaseNumber == profile.currentPhase && it.painAfter <= 4 
+        }
+        
+        val requiredStableSessions = when(profile.currentPhase) {
+            1 -> 5  // Phase 1 is short (McKenzie preference check)
+            2 -> 14 // Phase 2 habit building
+            3 -> 21 // Phase 3 strength
+            else -> 10
         }
 
-        return hitCompletionThreshold
+        return avgPain < 4.0 && stableSessions >= requiredStableSessions
     }
 }
