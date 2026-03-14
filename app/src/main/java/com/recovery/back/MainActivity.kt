@@ -35,7 +35,10 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable("dashboard") {
-                            // Dashboard Screen implementation will go here
+                            com.recovery.back.presentation.screens.dashboard.DashboardScreen(
+                                onLogPainClick = {},
+                                onRestDayToggle = {}
+                            )
                         }
                     }
                 }
