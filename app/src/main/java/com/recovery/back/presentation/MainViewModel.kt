@@ -79,6 +79,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             )
             appDao.insertDailyLog(current.copy(restDay = isRest))
         }
+    }
     val todayMeals: StateFlow<List<MealLogEntity>> = appDao.getMealsByDate(today)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
