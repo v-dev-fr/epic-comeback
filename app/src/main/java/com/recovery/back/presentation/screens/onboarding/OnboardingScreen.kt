@@ -1,3 +1,5 @@
+package com.recovery.back.presentation.screens.onboarding
+
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -247,10 +249,11 @@ fun ModernTextField(value: String, onValueChange: (String) -> Unit, label: Strin
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = TextFieldDefaults.outlinedTextFieldColors(
+        colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = ElectricBlue,
             unfocusedBorderColor = Color.White.copy(0.1f),
-            textColor = TextPrimary,
+            focusedTextColor = TextPrimary,
+            unfocusedTextColor = TextPrimary,
             cursorColor = ElectricBlue
         )
     )

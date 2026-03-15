@@ -28,7 +28,7 @@ import com.recovery.back.data.local.entity.UserProfileEntity
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
     object Dashboard : Screen("dashboard", "Home", Icons.Default.Home)
     object Exercises : Screen("exercises", "Routines", Icons.Default.PlayArrow)
-    object Trends : Screen("trends", "Trends", Icons.Default.Timeline)
+    object Trends : Screen("trends", "Trends", Icons.Filled.Timeline)
     object Alarms : Screen("alarms", "Alarms", Icons.Default.Notifications)
 }
 

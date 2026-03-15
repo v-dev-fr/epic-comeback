@@ -84,4 +84,7 @@ dependencies {
     
     // Lottie for gamification / confetti
     implementation("com.airbnb.android:lottie-compose:6.1.0")
+    
+    // Extended icons
+    implementation("androidx.compose.material:material-icons-extended")
 }

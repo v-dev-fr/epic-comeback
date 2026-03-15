@@ -1,3 +1,5 @@
+package com.recovery.back.presentation.screens.dashboard
+
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
