@@ -1,26 +1,35 @@
-package com.recovery.back.presentation.screens.exercises
-
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-
+import androidx.compose.ui.unit.sp
 import com.recovery.back.domain.model.Exercise
 import com.recovery.back.domain.model.ExerciseList
+import com.recovery.back.presentation.ui.theme.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun ExercisesScreen(
     currentPhase: Int = 1,
     weekNumber: Int = 1,
     dayNumber: Int = 4,
-    showDirectionalCheck: Boolean = false, // W1D3 condition
+    showDirectionalCheck: Boolean = false,
     hasFlexionWarning: Boolean = false,
     contraindicationWarningVisible: Boolean = false
 ) {
@@ -29,51 +38,58 @@ fun ExercisesScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .background(Obsidian)
+            .padding(horizontal = 20.dp),
+        contentPadding = PaddingValues(top = 24.dp, bottom = 40.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        // Warnings List
-        if (hasFlexionWarning) {
-            item {
-                WarningBanner(
-                    message = "Your symptoms may not respond to this plan — consult a physiotherapist."
-                )
-            }
+        item {
+            Text(
+                text = "Today's Routine",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Black,
+                color = TextPrimary
+            )
+            Text(
+                text = "Phase $currentPhase • Focus: Spine Hygiene",
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextSecondary
+            )
+            Spacer(modifier = Modifier.height(12.dp))
         }
 
-        if (contraindicationWarningVisible) {
+        if (hasFlexionWarning || contraindicationWarningVisible) {
             item {
-                WarningBanner(
-                    message = "Your last session increased pain significantly. Consider pausing this exercise and consulting your PT."
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    if (hasFlexionWarning) {
+                        WarningBanner("Flexion Intolerance Detected. Avoid forward bending.")
+                    }
+                    if (contraindicationWarningVisible) {
+                        WarningBanner("Pain Spike Alert. Scale back intensity today.")
+                    }
+                }
             }
         }
 
         if (showDirectionalCheck) {
-            item {
-                DirectionalPreferenceCard()
-            }
+            item { DirectionalPreferenceCard() }
         }
 
-        item {
-            Text(
-                text = "Phase $currentPhase Exercises",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        items(exercises.size) { index ->
-            ExerciseCard(exercise = exercises[index])
+        items(exercises) { exercise ->
+            ExerciseCard(exercise = exercise)
         }
         
         if (currentPhase == 4) {
             item {
                 Button(
                     onClick = { /* Open Custom Exercise Dialog */ },
-                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(0.05f))
                 ) {
-                    Text("Add Custom Phase 4 Exercise")
+                    Icon(Icons.Default.PlayArrow, contentDescription = null, tint = ElectricBlue)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Add Custom Phase 4 Lift", color = TextPrimary)
                 }
             }
         }
@@ -82,49 +98,99 @@ fun ExercisesScreen(
 
 @Composable
 fun ExerciseCard(exercise: Exercise) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = exercise.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            exercise.cue?.let {
+    Surface(
+        color = SurfaceDark,
+        shape = RoundedCornerShape(24.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(24.dp))
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
-                    text = "Cue: $it",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
+                    text = exercise.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                IconButton(
+                    onClick = { /* Mark as done */ },
+                    modifier = Modifier.clip(CircleShape).background(Color.White.copy(0.05f))
+                ) {
+                    Icon(Icons.Default.CheckBox, contentDescription = null, tint = if(exercise.phase > 1) NeonGreen else ElectricBlue)
+                }
             }
             
-            Text(
-                text = "Reps: ${exercise.sets} x ${exercise.reps}",
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            exercise.cue?.let {
+                Surface(
+                    color = ElectricBlue.copy(0.1f),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = ElectricBlue,
+                        modifier = Modifier.padding(12.dp),
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                StatBadge(label = "Sets", value = exercise.sets)
+                StatBadge(label = "Reps", value = exercise.reps)
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = exercise.description,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = TextSecondary,
+                lineHeight = 18.sp
             )
         }
     }
 }
 
 @Composable
+fun StatBadge(label: String, value: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(text = "$label: ", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+        Text(text = value, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = TextPrimary)
+    }
+}
+
+@Composable
 fun WarningBanner(message: String) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
-        modifier = Modifier.fillMaxWidth()
+    Surface(
+        color = ErrorRed.copy(0.1f),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, ErrorRed.copy(0.2f), RoundedCornerShape(16.dp))
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(imageVector = Icons.Default.Warning, contentDescription = "Warning", tint = MaterialTheme.colorScheme.error)
-            Spacer(modifier = Modifier.width(16.dp))
+            Icon(Icons.Default.Warning, contentDescription = null, tint = ErrorRed, modifier = Modifier.size(20.dp))
+            Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = message,
-                color = MaterialTheme.colorScheme.onErrorContainer,
-                style = MaterialTheme.typography.bodyMedium
+                color = ErrorRed,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.SemiBold
             )
         }
     }
@@ -132,22 +198,35 @@ fun WarningBanner(message: String) {
 
 @Composable
 fun DirectionalPreferenceCard() {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-        modifier = Modifier.fillMaxWidth()
+    Surface(
+        color = NeonGreen.copy(0.05f),
+        shape = RoundedCornerShape(20.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, NeonGreen.copy(0.1f), RoundedCornerShape(20.dp))
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text("Day 3 Check-In", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSecondaryContainer)
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(
+                "Assessment Required",
+                fontWeight = FontWeight.ExtraBold,
+                color = NeonGreen,
+                style = MaterialTheme.typography.titleMedium
+            )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("After doing your Cobra press-ups, does your leg/buttock pain:")
+            Text(
+                "Did your leg pain move toward your spine after the press-ups?",
+                style = MaterialTheme.typography.bodySmall,
+                color = TextPrimary
+            )
             
-            // Radio buttons would go here for:
-            // (a) Move toward spine
-            // (b) Stay the same
-            // (c) Move further down leg
-            
-            Button(onClick = { /* Save to UserProfile */ }, modifier = Modifier.padding(top = 8.dp)) {
-                Text("Save Observation")
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { /* Save */ },
+                colors = ButtonDefaults.buttonColors(containerColor = NeonGreen, contentColor = Obsidian),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Centralized (Feeling Better)", fontWeight = FontWeight.Bold)
             }
         }
     }

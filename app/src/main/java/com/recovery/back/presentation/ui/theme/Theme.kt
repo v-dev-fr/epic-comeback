@@ -17,29 +17,33 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = CalmBlue,
-    secondary = CalmGreen,
+    primary = ElectricBlue,
+    secondary = NeonGreen,
     tertiary = XpGold,
-    background = SurfaceDark,
+    background = Obsidian,
     surface = SurfaceDark,
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = SurfaceDark,
-    onBackground = Color.White,
-    onSurface = Color.White,
+    onPrimary = Obsidian,
+    onSecondary = Obsidian,
+    onTertiary = Obsidian,
+    onBackground = TextPrimary,
+    onSurface = TextPrimary,
+    error = ErrorRed,
+    onError = Color.White
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = CalmBlue,
-    secondary = CalmGreen,
+    primary = ElectricBlue,
+    secondary = NeonGreen,
     tertiary = XpGold,
-    background = BackgroundNeutral,
-    surface = Color.White,
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = SurfaceDark,
-    onBackground = SurfaceDark,
-    onSurface = SurfaceDark,
+    background = Obsidian, // Enforce Dark/Obsidian even in "light" for premium branding
+    surface = SurfaceDark,
+    onPrimary = Obsidian,
+    onSecondary = Obsidian,
+    onTertiary = Obsidian,
+    onBackground = TextPrimary,
+    onSurface = TextPrimary,
+    error = ErrorRed,
+    onError = Color.White
 )
 
 @Composable
