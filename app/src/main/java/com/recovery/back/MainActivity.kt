@@ -16,18 +16,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
-import com.recovery.back.presentation.MainViewModel
-import com.recovery.back.presentation.screens.alarms.AlarmsScreen
-import com.recovery.back.presentation.screens.exercises.ExercisesScreen
-import com.recovery.back.presentation.screens.onboarding.OnboardingScreen
-import com.recovery.back.presentation.screens.progress.ExportScreen
-import com.recovery.back.presentation.screens.progress.ProgressScreen
-import com.recovery.back.presentation.ui.theme.BackRecoveryTheme
-import com.recovery.back.data.local.entity.UserProfileEntity
+import com.recovery.back.presentation.screens.nutrition.DietScreen
+import com.recovery.back.presentation.screens.nutrition.FoodListScreen
 
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
     object Dashboard : Screen("dashboard", "Home", Icons.Default.Home)
-    object Exercises : Screen("exercises", "Routines", Icons.Default.PlayArrow)
+    object Exercises : Screen("exercises", "Routine", Icons.Default.PlayArrow)
+    object Diet : Screen("diet", "Diet", Icons.Default.Restaurant)
     object Trends : Screen("trends", "Trends", Icons.Filled.Timeline)
     object Alarms : Screen("alarms", "Alarms", Icons.Default.Notifications)
 }
@@ -50,11 +45,13 @@ class MainActivity : ComponentActivity() {
                     val items = listOf(
                         Screen.Dashboard,
                         Screen.Exercises,
+                        Screen.Diet,
                         Screen.Trends,
                         Screen.Alarms
                     )
 
-                    val showBottomBar = currentDestination?.route != "onboarding"
+                    val showBottomBar = currentDestination?.route != "onboarding" && 
+                                      currentDestination?.route != "food_list"
 
                     Scaffold(
                         bottomBar = {
@@ -99,25 +96,50 @@ class MainActivity : ComponentActivity() {
                             }
                             composable(Screen.Dashboard.route) {
                                 val profile = userProfile
+                                val waterLog by viewModel.waterLog.collectAsState()
+                                val dailyLog by viewModel.dailyLog.collectAsState()
                                 com.recovery.back.presentation.screens.dashboard.DashboardScreen(
                                     currentPhase = profile?.currentPhase ?: 1,
                                     xp = profile?.xp ?: 0,
                                     level = profile?.level ?: 1,
-                                    onLogPainClick = { /* Navigate to pain log */ },
+                                    completionPercentage = dailyLog?.completionPercentage ?: 0f,
+                                    isRestDay = dailyLog?.restDay ?: false,
+                                    waterCount = waterLog?.glassCount ?: 0,
+                                    onLogPainClick = { back, sciatic -> viewModel.logPain(back, sciatic) },
                                     onAddWaterClick = { viewModel.addWater() },
-                                    onLogWeightClick = { /* Open weight dialog */ },
-                                    onRestDayToggle = { /* Toggle in VM */ }
+                                    onLogWeightClick = { weight -> viewModel.logWeight(weight) },
+                                    onRestDayToggle = { viewModel.toggleRestDay(it) }
                                 )
                             }
                             composable(Screen.Exercises.route) {
                                 val profile = userProfile
-                                ExercisesScreen(currentPhase = profile?.currentPhase ?: 1)
+                                ExercisesScreen(
+                                    currentPhase = profile?.currentPhase ?: 1,
+                                    onExerciseComplete = { id, reps, phase ->
+                                        viewModel.logExerciseCompletion(id, reps, phase)
+                                    }
+                                )
+                            }
+                            composable(Screen.Diet.route) {
+                                val meals by viewModel.todayMeals.collectAsState()
+                                DietScreen(
+                                    meals = meals,
+                                    onFoodGuideClick = { navController.navigate("food_list") },
+                                    onAddMealClick = { name, cals -> viewModel.logMeal(name, cals) }
+                                )
+                            }
+                            composable("food_list") {
+                                FoodListScreen(onBackClick = { navController.popBackStack() })
                             }
                             composable(Screen.Trends.route) {
                                 ProgressScreen(onExportClick = { navController.navigate("export") })
                             }
                             composable(Screen.Alarms.route) {
-                                AlarmsScreen()
+                                val alarms by viewModel.alarms.collectAsState()
+                                AlarmsScreen(
+                                    alarms = alarms,
+                                    onToggleAlarm = { alarm, checked -> viewModel.updateAlarm(alarm, checked) }
+                                )
                             }
                             composable("export") {
                                 ExportScreen(onBackClick = { navController.popBackStack() })

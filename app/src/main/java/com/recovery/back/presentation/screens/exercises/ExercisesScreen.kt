@@ -31,7 +31,8 @@ fun ExercisesScreen(
     dayNumber: Int = 4,
     showDirectionalCheck: Boolean = false,
     hasFlexionWarning: Boolean = false,
-    contraindicationWarningVisible: Boolean = false
+    contraindicationWarningVisible: Boolean = false,
+    onExerciseComplete: (String, Int, Int) -> Unit = { _, _, _ -> }
 ) {
     val exercises = ExerciseList.filter { it.phase == currentPhase }
 
@@ -76,7 +77,10 @@ fun ExercisesScreen(
         }
 
         items(exercises) { exercise ->
-            ExerciseCard(exercise = exercise)
+            ExerciseCard(
+                exercise = exercise,
+                onComplete = { onExerciseComplete(exercise.id, exercise.reps.toIntOrNull() ?: 10, currentPhase) }
+            )
         }
         
         if (currentPhase == 4) {
@@ -97,7 +101,9 @@ fun ExercisesScreen(
 }
 
 @Composable
-fun ExerciseCard(exercise: Exercise) {
+fun ExerciseCard(exercise: Exercise, onComplete: () -> Unit) {
+    var isDone by remember { mutableStateOf(false) }
+    
     Surface(
         color = SurfaceDark,
         shape = RoundedCornerShape(24.dp),
@@ -118,10 +124,17 @@ fun ExerciseCard(exercise: Exercise) {
                     color = TextPrimary
                 )
                 IconButton(
-                    onClick = { /* Mark as done */ },
-                    modifier = Modifier.clip(CircleShape).background(Color.White.copy(0.05f))
+                    onClick = { 
+                        isDone = !isDone
+                        if (isDone) onComplete() 
+                    },
+                    modifier = Modifier.clip(CircleShape).background(if (isDone) NeonGreen.copy(0.1f) else Color.White.copy(0.05f))
                 ) {
-                    Icon(Icons.Default.CheckBox, contentDescription = null, tint = if(exercise.phase > 1) NeonGreen else ElectricBlue)
+                    Icon(
+                        imageVector = if (isDone) Icons.Default.CheckCircle else Icons.Default.CheckBoxOutlineBlank, 
+                        contentDescription = null, 
+                        tint = if (isDone) NeonGreen else TextSecondary
+                    )
                 }
             }
             
