@@ -15,6 +15,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
 import com.recovery.back.presentation.ui.theme.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -56,7 +58,7 @@ fun ProgressScreen(
                     .background(Color.White.copy(0.05f), RoundedCornerShape(12.dp))
                     .border(1.dp, Color.White.copy(0.1f), RoundedCornerShape(12.dp))
             ) {
-                Icon(androidx.compose.material.icons.Icons.Default.Share, contentDescription = "Export")
+                Icon(Icons.Default.Share, contentDescription = "Export")
             }
         }
 
