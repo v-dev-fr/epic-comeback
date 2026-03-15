@@ -18,6 +18,19 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
 import com.recovery.back.presentation.screens.nutrition.DietScreen
 import com.recovery.back.presentation.screens.nutrition.FoodListScreen
+import com.recovery.back.presentation.MainViewModel
+import com.recovery.back.presentation.screens.alarms.AlarmsScreen
+import com.recovery.back.presentation.screens.exercises.ExercisesScreen
+import com.recovery.back.presentation.screens.onboarding.OnboardingScreen
+import com.recovery.back.presentation.screens.progress.ExportScreen
+import com.recovery.back.presentation.screens.progress.ProgressScreen
+import com.recovery.back.presentation.ui.theme.BackRecoveryTheme
+import com.recovery.back.data.local.entity.UserProfileEntity
+import com.recovery.back.data.local.entity.MealLogEntity
+import com.recovery.back.data.local.entity.AlarmConfigEntity
+import com.recovery.back.data.local.entity.DailyLogEntity
+import com.recovery.back.data.local.entity.WaterLogEntity
+import com.recovery.back.presentation.screens.dashboard.DashboardScreen
 
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
     object Dashboard : Screen("dashboard", "Home", Icons.Default.Home)
@@ -98,7 +111,7 @@ class MainActivity : ComponentActivity() {
                                 val profile = userProfile
                                 val waterLog by viewModel.waterLog.collectAsState()
                                 val dailyLog by viewModel.dailyLog.collectAsState()
-                                com.recovery.back.presentation.screens.dashboard.DashboardScreen(
+                                DashboardScreen(
                                     currentPhase = profile?.currentPhase ?: 1,
                                     xp = profile?.xp ?: 0,
                                     level = profile?.level ?: 1,
@@ -115,7 +128,7 @@ class MainActivity : ComponentActivity() {
                                 val profile = userProfile
                                 ExercisesScreen(
                                     currentPhase = profile?.currentPhase ?: 1,
-                                    onExerciseComplete = { id, reps, phase ->
+                                    onExerciseComplete = { id: String, reps: Int, phase: Int ->
                                         viewModel.logExerciseCompletion(id, reps, phase)
                                     }
                                 )
@@ -138,7 +151,7 @@ class MainActivity : ComponentActivity() {
                                 val alarms by viewModel.alarms.collectAsState()
                                 AlarmsScreen(
                                     alarms = alarms,
-                                    onToggleAlarm = { alarm, checked -> viewModel.updateAlarm(alarm, checked) }
+                                    onToggleAlarm = { alarm: AlarmConfigEntity, checked: Boolean -> viewModel.updateAlarm(alarm, checked) }
                                 )
                             }
                             composable("export") {
