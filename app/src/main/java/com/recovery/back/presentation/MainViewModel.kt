@@ -25,16 +25,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val dailyLog: StateFlow<DailyLogEntity?> = appDao.getDailyLog(today)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    fun addWater() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val current = waterLog.value
-            if (current == null) {
-                appDao.insertWaterLog(WaterLogEntity(dateEpochDay = today, glassCount = 1))
-            } else {
-                appDao.insertWaterLog(current.copy(glassCount = current.glassCount + 1))
-            }
-        }
-    }
 
     fun logWeight(weight: Float) {
         viewModelScope.launch(Dispatchers.IO) {

@@ -1,5 +1,6 @@
 package com.recovery.back.presentation.screens.progress
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -27,6 +28,7 @@ import com.patrykandpatrick.vico.compose.chart.Chart
 import com.patrykandpatrick.vico.compose.chart.line.lineChart
 import com.patrykandpatrick.vico.compose.chart.column.columnChart
 import com.patrykandpatrick.vico.core.entry.entryModelOf
+import com.patrykandpatrick.vico.core.entry.entryOf
 import com.recovery.back.data.local.entity.WeightLogEntity
 
 @Composable
@@ -63,7 +65,7 @@ fun ProgressScreen(
             TrendCard("Weight Trend (kg)") {
                 val weightEntries = weightLogs.mapIndexed { index, log -> index.toFloat() to log.weightKg }
                 if (weightEntries.isNotEmpty()) {
-                    Chart(chart = lineChart(), model = entryModelOf(weightEntries.map { it.second }), startAxis = rememberStartAxis(), bottomAxis = rememberBottomAxis(), modifier = Modifier.fillMaxSize())
+                    Chart(chart = lineChart(), model = entryModelOf(*weightEntries.map { it.second }.toTypedArray()), startAxis = rememberStartAxis(), bottomAxis = rememberBottomAxis(), modifier = Modifier.fillMaxSize())
                 } else {
                     Text("No weight data yet", color = TextSecondary)
                 }
@@ -75,7 +77,7 @@ fun ProgressScreen(
             TrendCard("Pain vs consistency") {
                 val painEntries = painCorrelation.map { it.first }
                 if (painEntries.isNotEmpty()) {
-                    Chart(chart = columnChart(), model = entryModelOf(painEntries), startAxis = rememberStartAxis(), bottomAxis = rememberBottomAxis(), modifier = Modifier.fillMaxSize())
+                    Chart(chart = columnChart(), model = entryModelOf(*painEntries.toTypedArray()), startAxis = rememberStartAxis(), bottomAxis = rememberBottomAxis(), modifier = Modifier.fillMaxSize())
                 } else {
                     Text("No pain logs yet", color = TextSecondary)
                 }
