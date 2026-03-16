@@ -111,10 +111,13 @@ class MainActivity : ComponentActivity() {
                                 val profile = userProfile
                                 val waterLog by viewModel.waterLog.collectAsState()
                                 val dailyLog by viewModel.dailyLog.collectAsState()
+                                val streak by viewModel.workoutStreak.collectAsState()
+
                                 DashboardScreen(
                                     currentPhase = profile?.currentPhase ?: 1,
                                     xp = profile?.xp ?: 0,
                                     level = profile?.level ?: 1,
+                                    streakDays = streak,
                                     completionPercentage = dailyLog?.completionPercentage ?: 0f,
                                     isRestDay = dailyLog?.restDay ?: false,
                                     waterCount = waterLog?.glassCount ?: 0,
@@ -145,7 +148,16 @@ class MainActivity : ComponentActivity() {
                                 FoodListScreen(onBackClick = { navController.popBackStack() })
                             }
                             composable(Screen.Trends.route) {
-                                ProgressScreen(onExportClick = { navController.navigate("export") })
+                                val weightLogs by viewModel.weightLogs.collectAsState()
+                                val painCorrelation by viewModel.painConsistencyCorrelation.collectAsState()
+                                val consistencyScore by viewModel.consistencyScore.collectAsState()
+                                
+                                ProgressScreen(
+                                    weightLogs = weightLogs,
+                                    painCorrelation = painCorrelation,
+                                    consistencyScore = consistencyScore,
+                                    onExportClick = { navController.navigate("export") }
+                                )
                             }
                             composable(Screen.Alarms.route) {
                                 val alarms by viewModel.alarms.collectAsState()

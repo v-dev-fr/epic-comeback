@@ -25,7 +25,21 @@ class AlarmReceiver : BroadcastReceiver() {
 
         showNotification(context, alarmId, title, message, soundEnabled, vibrationEnabled)
         
-        // Gamification / Haptic feedback intent could be fired here
+        // Reschedule if it's a repeating alarm
+        if (alarmId != -1) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val db = com.recovery.back.data.local.AppDatabase.getDatabase(context)
+                val alarm = db.appDao().getAlarmByIdSync(alarmId)
+                if (alarm != null && alarm.enabled && alarm.repeatIntervalMillis > 0) {
+                    val nextTrigger = System.currentTimeMillis() + alarm.repeatIntervalMillis
+                    val updatedAlarm = alarm.copy(nextTriggerTime = nextTrigger)
+                    db.appDao().updateAlarm(updatedAlarm)
+                    
+                    // Use AlarmScheduler to set the next one
+                    com.recovery.back.util.AlarmScheduler(context).scheduleAlarm(updatedAlarm)
+                }
+            }
+        }
     }
 
     private fun showNotification(

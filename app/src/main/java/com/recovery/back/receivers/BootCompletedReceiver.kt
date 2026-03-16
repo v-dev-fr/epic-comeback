@@ -21,12 +21,11 @@ class BootCompletedReceiver : BroadcastReceiver() {
                 try {
                     val db = AppDatabase.getDatabase(context)
                     val alarms = db.appDao().getEnabledAlarmsSync()
+                    val scheduler = com.recovery.back.util.AlarmScheduler(context)
                     
-                    // Logic to loop through alarms and reschedule them using AlarmManager
-                    // Not writing the full AlarmManager boilerplate here, but this is the hook
                     alarms.forEach { alarm ->
                         if (alarm.enabled) {
-                            // Scheduling logic will use alarm.nextTriggerTime and AlarmManager
+                            scheduler.scheduleAlarm(alarm)
                         }
                     }
                 } finally {

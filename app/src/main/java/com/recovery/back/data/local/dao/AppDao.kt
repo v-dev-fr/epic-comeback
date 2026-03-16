@@ -33,12 +33,18 @@ interface AppDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertExerciseSession(session: ExerciseSessionEntity)
 
+    @Query("SELECT * FROM exercise_session WHERE dateEpochDay = :date")
+    suspend fun getExerciseSessionsSync(date: Long): List<ExerciseSessionEntity>
+
     // Alarms
     @Query("SELECT * FROM alarm_config")
     fun getAllAlarms(): Flow<List<AlarmConfigEntity>>
     
     @Query("SELECT * FROM alarm_config WHERE enabled = 1")
     suspend fun getEnabledAlarmsSync(): List<AlarmConfigEntity>
+
+    @Query("SELECT * FROM alarm_config WHERE id = :id")
+    suspend fun getAlarmByIdSync(id: Int): AlarmConfigEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAlarm(alarm: AlarmConfigEntity): Long
